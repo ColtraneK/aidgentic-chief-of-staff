@@ -1,0 +1,12 @@
+{
+  "name": "aidgentic",
+  "description": "Agentic systems for founder-led businesses, from Aidgentic.",
+  "owner": "Aidgentic",
+  "plugins": [
+    {
+      "name": "aidgentic-chief-of-staff",
+      "description": "Build an AI chief of staff. It reads up on your business, connects your tools, tells you each morning what needs your attention most, and helps you to get better at leveraging AI. Read-only by default — it prepares the work, you approve and act.",
+      "source": "."
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{BUSINESS_NAME}} — Dashboard</title>
+<style>
+/* Light is the base. Dark redefines only the tokens. Nothing below
+   :root writes a hex code, so a re-theme is one block. */
+:root{
+  --bg:#F6F7F9; --panel:#FFFFFF; --panel-2:#EEF1F4; --line:#DDE2E8;
+  --ink:#14202B; --ink2:#42596E; --ink3:#657C90;
+  --accent:#0B6E8A; --warn:#96540B; --good:#0D6B48;
+  --shadow:0 1px 2px rgba(20,32,43,.05), 0 12px 28px -18px rgba(20,32,43,.28);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0F1821; --panel:#16222E; --panel-2:#1D2C3A; --line:#2A3C4D;
+    --ink:#EDF3F8; --ink2:#B4C7D6; --ink3:#88A0B3;
+    --accent:#5AC8E0; --warn:#E8AE55; --good:#54D3A0;
+    --shadow:0 1px 2px rgba(0,0,0,.25), 0 12px 28px -18px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:400 15px/1.5 var(--sans);font-variant-numeric:tabular-nums;
+     -webkit-font-smoothing:antialiased}
+h1,h2,p,ul,ol{margin:0} ul,ol{list-style:none;padding:0} a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.page{max-width:1060px;margin:0 auto;padding:36px 24px 52px}
+
+/* HEADER */
+.mark{width:38px;height:3px;border-radius:2px;background:var(--accent)}
+h1{margin:16px 0 0;font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.head-meta{margin:7px 0 0;font-size:13px;color:var(--ink3)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:22px;max-width:640px}
+.stat{background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.stat b{display:block;font-size:19px;font-weight:600;line-height:1.1}
+.stat span{display:block;margin-top:5px;font-size:13px;line-height:1.35;color:var(--ink3)}
+
+/* GRID — fixed placement so the shape never changes run to run */
+.grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:22px;align-items:start}
+@media (min-width:900px){
+  .grid{grid-template-columns:1.2fr 1fr}
+  .full{grid-column:1 / -1}
+  .left{grid-column:1} .right{grid-column:2}
+}
+
+/* CARD + SECTION HEADER (a disclosure) */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;
+      padding:20px;box-shadow:var(--shadow)}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:13px}
+.sec-h h2{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+#needs-you .sec-h h2{color:var(--ink2)}
+.sec-t{display:inline-flex;align-items:center;gap:9px;background:none;border:0;padding:0;
+       cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
+.sec-n{font-size:13px;color:var(--ink3);flex:0 0 auto}
+.caret{width:6px;height:6px;flex:0 0 auto;border-right:1.5px solid currentColor;
+       border-bottom:1.5px solid currentColor;transform:rotate(45deg) translate(-1px,-1px);
+       transition:transform .15s ease;opacity:.7}
+.sec-t[aria-expanded="false"] .caret{transform:rotate(-45deg) translate(-1px,1px)}
+.sec-b[hidden]{display:none}
+.hint{margin:-4px 0 12px;font-size:13px;color:var(--ink3)}
+
+/* ITEM ROW */
+.row{display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:0} .row:last-child{padding-bottom:0}
+.row-main{flex:1 1 auto;min-width:0}
+.row-t{font-size:15px;font-weight:500;line-height:1.45;max-width:62ch}
+.row-s{margin-top:4px;font-size:13px;line-height:1.45;color:var(--ink3);max-width:62ch}
+.row-side{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.meta{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);white-space:nowrap}
+.meta.is-warn{color:var(--warn)} .meta.is-good{color:var(--good)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.t-warn{color:var(--warn)}
+
+/* ASK CHIP — a link that opens Claude with the phrase prefilled */
+.chip{display:inline-block;text-decoration:none;font:400 13px/1 var(--sans);
+      color:var(--ink2);background:var(--panel-2);border:1px solid var(--line);
+      border-radius:999px;padding:7px 12px;white-space:nowrap;cursor:pointer;
+      transition:color .12s ease,border-color .12s ease}
+.chip:hover,.chip:focus-visible{color:var(--accent);border-color:var(--accent)}
+.chip.is-copied{color:var(--good);border-color:var(--good)}
+
+/* WEEK STRIP */
+.week{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:4px}
+.wd-h{display:flex;align-items:baseline;gap:7px;padding-bottom:9px;margin-bottom:10px;
+      border-bottom:1px solid var(--line)}
+.wd.is-today .wd-h{border-bottom:2px solid var(--accent);padding-bottom:8px}
+.wd-d{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.wd-n{font-size:15px;font-weight:500;color:var(--ink3)}
+.wd.is-today .wd-d,.wd.is-today .wd-n{color:var(--ink)}
+.wd-b{display:flex;flex-direction:column;gap:7px;min-height:96px}
+.ev{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;
+    font-size:13px;line-height:1.35;color:var(--ink2)}
+.ev-t{display:block;color:var(--ink3)}
+.ev.is-warn{border-color:var(--warn)} .ev.is-warn .ev-t{color:var(--warn)}
+.wd-more,.wd-clear{font-size:13px;color:var(--ink3)}
+.wd-clear{border:1px dashed var(--line);border-radius:9px;padding:8px 10px}
+
+/* THREAD ROW — the age leads */
+.thread{display:flex;gap:15px;align-items:flex-start;padding:13px 0;border-top:1px solid var(--line)}
+.thread:first-child{border-top:0;padding-top:0} .thread:last-child{padding-bottom:0}
+.age{flex:0 0 40px;text-align:center;padding-top:1px}
+.age b{display:block;font-size:19px;font-weight:600;line-height:1;color:var(--ink2)}
+.age span{display:block;margin-top:4px;font-size:13px;line-height:1;color:var(--ink3)}
+.thread.is-old .age b,.thread.is-old .age span{color:var(--warn)}
+
+/* RUN ROW — scheduled tasks, as a control panel */
+.run{display:flex;align-items:baseline;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.run:first-child{border-top:0;padding-top:0} .run:last-child{padding-bottom:0}
+.run .dot{color:var(--good);align-self:center}
+.run-n{flex:1 1 auto;min-width:0;font-size:15px}
+.run-c{flex:0 0 auto;font-size:13px;color:var(--ink3);white-space:nowrap}
+.run-t{flex:0 0 auto;min-width:84px;text-align:right;font-size:13px;color:var(--ink2);white-space:nowrap}
+
+.empty{font-size:13px;color:var(--ink3)}
+.foot{margin-top:26px;padding-top:17px;border-top:1px solid var(--line)}
+.foot p{font-size:13px;line-height:1.55;color:var(--ink3);max-width:78ch}
+.foot p + p{margin-top:6px}
+
+@media (max-width:760px){ .week{grid-template-columns:1fr;gap:13px} .wd-b{min-height:0} }
+@media (max-width:600px){
+  .page{padding:26px 18px 38px} .card{padding:17px} h1{font-size:23px}
+  .row{flex-wrap:wrap}
+  .row-side{width:100%;align-items:flex-start;flex-direction:row;flex-wrap:wrap;gap:9px}
+  .run{flex-wrap:wrap} .run-n{flex:1 1 100%;order:1} .run .dot{order:0}
+  .run-c{order:2;margin-left:18px} .run-t{order:3;min-width:0;margin-left:auto}
+}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel-2:#fff;--line:#D9DEE4;--ink:#14202B;
+        --ink2:#42596E;--ink3:#5F6B74;--shadow:none;color-scheme:light}
+  body{background:#fff;font-size:11.5pt} .page{max-width:none;padding:0}
+  .grid{display:block} .card{break-inside:avoid;margin-bottom:12px;padding:14px 16px;box-shadow:none}
+  .sec-b[hidden]{display:block !important}
+  .chip,.hint,.caret{display:none !important}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="mark" aria-hidden="true"></div>
+    <h1>{{BUSINESS_NAME}}</h1>
+    <p class="head-meta">Built {{BUILT_AT}} · {{TIMEZONE}}</p>
+    <div class="stats">{{STATS}}</div>
+  </header>
+
+  <main class="grid">
+
+    <section class="card full" id="needs-you" data-section="needs-you">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-needs-you"
+            ><span class="caret" aria-hidden="true"></span>Needs you</button></h2>
+        <span class="sec-n">{{N_NEEDS_YOU}}</span>
+      </div>
+      <div class="sec-b" id="b-needs-you">
+        <p class="hint">The chips open Claude with the phrase already typed. Nothing sends until you press enter.</p>
+        <ul>{{ROWS_NEEDS_YOU}}</ul>
+      </div>
+    </section>
+
+    <section class="card full" id="this-week" data-section="this-week">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-this-week"
+            ><span class="caret" aria-hidden="true"></span>The week ahead</button></h2>
+        <span class="sec-n">{{N_WEEK}}</span>
+      </div>
+      <div class="sec-b" id="b-this-week"><ol class="week">{{COLS_WEEK}}</ol></div>
+    </section>
+
+    <section class="card left" id="you-promised" data-section="you-promised">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-you-promised"
+            ><span class="caret" aria-hidden="true"></span>You promised</button></h2>
+        <span class="sec-n">{{N_PROMISED}}</span>
+      </div>
+      <div class="sec-b" id="b-you-promised"><ul>{{ROWS_PROMISED}}</ul></div>
+    </section>
+
+    <section class="card right" id="open-threads" data-section="open-threads">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-open-threads"
+            ><span class="caret" aria-hidden="true"></span>Gone quiet</button></h2>
+        <span class="sec-n">{{N_QUIET}}</span>
+      </div>
+      <div class="sec-b" id="b-open-threads"><ul>{{ROWS_QUIET}}</ul></div>
+    </section>
+
+    <section class="card left" id="standing-work" data-section="standing-work">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-standing-work"
+            ><span class="caret" aria-hidden="true"></span>Standing work</button></h2>
+        <span class="sec-n">{{N_STANDING}}</span>
+      </div>
+      <div class="sec-b" id="b-standing-work"><ul>{{ROWS_STANDING}}</ul></div>
+    </section>
+
+    <section class="card right" id="scheduled" data-section="scheduled">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-scheduled"
+            ><span class="caret" aria-hidden="true"></span>Scheduled tasks</button></h2>
+        <span class="sec-n">{{N_SCHEDULED}}</span>
+      </div>
+      <div class="sec-b" id="b-scheduled"><ul>{{ROWS_SCHEDULED}}</ul></div>
+    </section>
+
+    <section class="card full" id="moved" data-section="moved">
+      <div class="sec-h">
+        <h2><button class="sec-t" type="button" aria-expanded="true" aria-controls="b-moved"
+            ><span class="caret" aria-hidden="true"></span>Moved</button></h2>
+        <span class="sec-n">{{N_MOVED}}</span>
+      </div>
+      <div class="sec-b" id="b-moved"><ul>{{ROWS_MOVED}}</ul></div>
+    </section>
+
+    <!-- ADD YOUR OWN SECTIONS BELOW THIS LINE.
+         Copy a card above, give it a new id and a data-section name, and
+         add data-ask with a plain sentence saying what belongs in it:
+
+           <section class="card full" id="content" data-section="content"
+                    data-ask="Posts I've drafted or promised, and what's still unwritten.">
+
+         The next rebuild reads that sentence and fills the section. Nothing
+         else needs changing, and edits made here survive every rebuild. -->
+
+  </main>
+
+  <footer class="foot">
+    <p>{{FOOTER_SOURCES}}</p>
+    <p>Built {{BUILT_AT}} from {{STATE_FILE}} · template {{TEMPLATE_VERSION}} · rebuild by saying "where do things stand".</p>
+  </footer>
+
+</div>
+
+<script>
+/* Two behaviours. No storage, no network, no tool calls. */
+(function(){'use strict';var d=document;
+
+/* collapse a section — session only, resets on reload */
+d.addEventListener('click',function(e){
+  var t=e.target.closest&&e.target.closest('.sec-t'); if(!t)return;
+  var open=t.getAttribute('aria-expanded')==='true';
+  t.setAttribute('aria-expanded',open?'false':'true');
+  var b=d.getElementById(t.getAttribute('aria-controls')); if(b)b.hidden=open;
+});
+
+/* ask chips — open a chat with the phrase typed; copy if the popup is blocked */
+function flash(a,w){if(a.dataset.busy==='1')return;a.dataset.busy='1';
+  var o=a.textContent;a.textContent=w;a.classList.add('is-copied');
+  setTimeout(function(){a.textContent=o;a.classList.remove('is-copied');a.dataset.busy='0';},1500);}
+function legacy(text,a){var ta=d.createElement('textarea');ta.value=text;
+  ta.setAttribute('readonly','');ta.style.cssText='position:fixed;top:-1000px;opacity:0';
+  d.body.appendChild(ta);ta.select();var ok=false;
+  try{ok=d.execCommand('copy');}catch(err){}d.body.removeChild(ta);
+  if(ok)flash(a,'copied');
+  else{try{var r=d.createRange();r.selectNodeContents(a);var s=window.getSelection();
+    s.removeAllRanges();s.addRange(r);}catch(err){}}}
+function copyText(text,a){
+  if(navigator.clipboard&&navigator.clipboard.writeText&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(function(){flash(a,'copied');},
+                                            function(){legacy(text,a);});
+  }else{legacy(text,a);}}
+d.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('.chip'); if(!a)return;
+  if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0)return;
+  e.preventDefault();
+  var w=null; try{w=window.open(a.href,'_blank','noopener');}catch(err){}
+  if(w)return;
+  /* an artifact panel is a sandboxed iframe and blocks popups silently */
+  copyText(a.getAttribute('data-q')||a.textContent.trim(),a);
+});
+})();
+</script>
+</body>
+</html>

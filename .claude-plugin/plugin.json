@@ -1,0 +1,19 @@
+{
+  "name": "aidgentic-chief-of-staff",
+  "version": "3.0.0",
+  "description": "Build an AI chief of staff. It reads up on your business, connects your tools, tells you each morning what needs your attention most, and helps you to get better at leveraging AI. Read-only by default — it prepares the work, you approve and act.",
+  "author": {
+    "name": "Coltrane Kubo",
+    "url": "https://aidgentic.com"
+  },
+  "homepage": "https://aidgentic.com",
+  "keywords": [
+    "chief-of-staff",
+    "daily-brief",
+    "small-business",
+    "nonprofit",
+    "operations",
+    "founder",
+    "personal-assistant"
+  ]
+}
