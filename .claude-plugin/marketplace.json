@@ -1,7 +1,10 @@
 {
   "name": "aidgentic",
   "description": "Agentic systems for founder-led businesses, from Aidgentic.",
-  "owner": "Aidgentic",
+  "owner": {
+    "name": "Aidgentic",
+    "url": "https://aidgentic.com"
+  },
   "plugins": [
     {
       "name": "aidgentic-chief-of-staff",
