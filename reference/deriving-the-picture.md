@@ -122,7 +122,7 @@ Every candidate whose place in the picture depends on **the person not having an
 
 ### The checks, in order
 
-1. **Run one date-bounded query per counterparty, before any thread is opened** — `to:<them> after:<the date you are about to claim silence from>`. Empty means the silence claim stands, and you already have the dated bound the receipt needs. Non-empty kills the claim outright; fetch the thread only to find out who and what. The fetch is conditional on this, which makes the gate cheaper than it was, not more expensive.
+1. **Run one date-bounded query per counterparty, before any thread is opened** — `in:sent to:<them> after:<the date you are about to claim silence from>`. **Scoped to sent mail, always**: bare `to:` matches the header on any message in the mailbox, so an inbound message addressed to them with you copied comes back non-empty and kills a claim that was true. Empty means the silence claim stands, and you already have the dated bound the receipt needs. Non-empty kills the claim outright; fetch the thread only to find out who and what. The fetch is conditional on this, which makes the gate cheaper than it was, not more expensive.
 
 2. **Look the counterparty up in the Step 1 index**, by full address and by domain. A sent message timestamped after the message in question closes the item — answered, not waiting, out of the gate here. One pass, every candidate, before any thread is opened. **If the index wasn't built, build it now**; nothing gets ranked off a gate that skipped this check.
 
@@ -145,7 +145,7 @@ Every candidate whose place in the picture depends on **the person not having an
 
 Every line asserting that someone hasn't answered records, on its evidence line, **what was searched, how far back, and who sent the last message in the thread**:
 
-> *Priya Venkatesan — no reply. Sent-mail index, 21 days by address and by @venkatesanpartners.example: nothing since Aug 4. `to:priya@venkatesanpartners.example after:2026/08/11`: empty. `get_thread(18f2a9c04b1e)` → 4 messages, last is Priya's, Aug 11 14:02 ET.*
+> *Priya Venkatesan — no reply. Sent-mail index, 21 days by address and by @venkatesanpartners.example: nothing since Aug 4. `in:sent to:priya@venkatesanpartners.example after:2026/08/11`: empty. `get_thread(18f2a9c04b1e)` → 4 messages, last is Priya's, Aug 11 14:02 ET.*
 
 **The last sender and their timestamp are the load-bearing part**, and the fetch that found them is written out literally: `get_thread(<id>) → N messages, last is <whose>, <timestamp+zone>`. A receipt that cannot name the thread id is not a receipt — the id is the part you cannot write without having done the work. "Thread enumerated," without saying what the enumeration found at the end of it, is the failure with a receipt stapled to it.
 
