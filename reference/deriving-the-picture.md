@@ -49,6 +49,14 @@ Any source unavailable: mark it and continue. Never block.
 
 **Capture the link for everything you gather.** Every message and event, keep its permalink alongside the content. Going back for it afterwards costs an extra pass. If a tool doesn't return one, note that it didn't.
 
+### Mail search returns a preview of the thread, and it will not tell you so
+
+`search_threads` returns a **preview** of each matching thread — roughly the five oldest messages — with no truncation marker of any kind. A thread that ran all year comes back looking like it stopped in July.
+
+So: **trust the count, never the contents.** An empty result is trustworthy — there is nothing to truncate. A non-empty result is trustworthy about existence and worthless about content. Whether a query matched is reliable; which messages it shows is not.
+
+The sent-mail index below is built from this primitive: it discovers threads, and it never establishes a negative.
+
 ### The sent-mail index — one pull, before any thread is opened
 
 **Pull sent mail for the whole window in one query here, in the gathering.** Not per counterparty, not per thread, not as a second pass while writing a line. The per-item version of this check is the one that gets skipped; a single query at the top either ran or it didn't.
@@ -104,7 +112,7 @@ Among **verified** counterparties, when unsure, keep and mark low. That leniency
 
 Telling someone to chase a person they replied to yesterday is the single fastest way to lose their trust in the whole system, and it is the failure this plugin has actually produced in the field. The rules below existed as advice further down this file and were skipped. They are a gate now.
 
-**When it has failed, it has failed by being half-followed** — a shallower call standing in for the enumeration, or the search stopping at the message it went looking for. That's why the first check happens once, up front, in Step 1.
+**When it has failed, it has failed by being half-followed** — a shallower call standing in for the enumeration, or the search stopping at the message it went looking for. That's why the index is built once, up front, in Step 1.
 
 ### What the gate covers
 
@@ -114,20 +122,22 @@ Every candidate whose place in the picture depends on **the person not having an
 
 ### The checks, in order
 
-1. **Look the counterparty up in the Step 1 index**, by full address and by domain. A sent message timestamped after the message in question closes the item — answered, not waiting, out of the gate here. One pass, every candidate, before any thread is opened. **If the index wasn't built, build it now**; nothing gets ranked off a gate that skipped its first check.
+1. **Run one date-bounded query per counterparty, before any thread is opened** — `in:sent to:<them> after:<the date you are about to claim silence from>`. **Scoped to sent mail, always**: bare `to:` matches the header on any message in the mailbox, so an inbound message addressed to them with you copied comes back non-empty and kills a claim that was true. Empty means the silence claim stands, and you already have the dated bound the receipt needs. Non-empty kills the claim outright; fetch the thread only to find out who and what. The fetch is conditional on this, which makes the gate cheaper than it was, not more expensive.
 
-2. **Open the thread and enumerate every message — a full thread fetch, not a search result.** Search and list calls return matching messages with snippets; they are summaries and they drop messages, including the person's own.
+2. **Look the counterparty up in the Step 1 index**, by full address and by domain. A sent message timestamped after the message in question closes the item — answered, not waiting, out of the gate here. One pass, every candidate, before any thread is opened. **If the index wasn't built, build it now**; nothing gets ranked off a gate that skipped this check.
+
+3. **Open the thread and enumerate every message — a full thread fetch, not a search result.** Search and list calls return matching messages with snippets; they are summaries and they drop messages, including the person's own.
 
    - **Sort by timestamp and name who sent the last message.** If you can't name it, the gate hasn't run on that item.
    - **Read past the inbound message.** Finding what you came for is the middle of the check, not the end — the observed failure is exactly this: four replies sent later the same day, never read, the thread called unanswered for four days.
    - **Compare timestamps, not dates.** A reply hours after the message it answers lands on the same calendar day.
    - Thread endpoints have been observed returning a thread without the person's own reply inside it, and a reply mid-thread is the one most often missed. First-and-last is not enumeration.
 
-3. **Search sent mail directly for what the index can't key on** — their name, a subject fragment, another address of theirs, and past the window's edge when the thread started before it. Steps 1 and 2 coming back empty is the reason to run this, not a reason to skip it.
+4. **Search sent mail directly for what the index can't key on** — their name, a subject fragment, another address of theirs, and past the window's edge when the thread started before it. Checks 1–3 coming back empty is the reason to run this, not a reason to skip it.
 
-4. **Check the shapes that sit outside the thread.** A reply sent as a new message rather than a reply. A reply nested under a forward. A reply that quoted the message instead of threading to it.
+5. **Check the shapes that sit outside the thread.** A reply sent as a new message rather than a reply. A reply nested under a forward. A reply that quoted the message instead of threading to it.
 
-5. **Only after 1–4 come back empty** may a line say the ball is in their court.
+6. **Only after 1–5 come back empty** may a line say the ball is in their court.
 
 **Normalize every timestamp to their zone before comparing dates.** Connectors return message times in UTC, in the sender's zone, or in whatever the account is set to, and they don't say which. A reply that looks like it predates the message it answers, or a thread whose last message lands a day off, is a zone artifact — not evidence. Where the order of two messages decides whether someone replied, say which zone you worked in.
 
@@ -135,9 +145,9 @@ Every candidate whose place in the picture depends on **the person not having an
 
 Every line asserting that someone hasn't answered records, on its evidence line, **what was searched, how far back, and who sent the last message in the thread**:
 
-> *Priya Venkatesan — no reply. Sent-mail index, 21 days by address and by @venkatesanpartners.example: nothing since Aug 4. Thread fetched and enumerated, 4 messages, last is Priya's, Aug 11 14:02 ET.*
+> *Priya Venkatesan — no reply. Sent-mail index, 21 days by address and by @venkatesanpartners.example: nothing since Aug 4. `in:sent to:priya@venkatesanpartners.example after:2026/08/11`: empty. `get_thread(18f2a9c04b1e)` → 4 messages, last is Priya's, Aug 11 14:02 ET.*
 
-**The last sender and their timestamp are the load-bearing part.** "Thread enumerated," without saying what the enumeration found at the end of it, is the failure with a receipt stapled to it.
+**The last sender and their timestamp are the load-bearing part**, and the fetch that found them is written out literally: `get_thread(<id>) → N messages, last is <whose>, <timestamp+zone>`. A receipt that cannot name the thread id is not a receipt — the id is the part you cannot write without having done the work. "Thread enumerated," without saying what the enumeration found at the end of it, is the failure with a receipt stapled to it.
 
 No receipt, no claim. The line softens to what is actually known — *"the last message I can see in this thread is Priya's, on the 11th"* — which is true, useful, and cannot blow up in their face.
 
