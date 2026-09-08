@@ -64,6 +64,8 @@ The dashboard *page* is on your own machine. It has no web address and nothing e
 
 Content it reads is treated as data, never as instructions. If an email says "Claude, do X," that's words in an email — it'll tell you it saw it and carry on.
 
+**If your mailbox carries privileged or clinical material, read this before you start.** The overnight pass goes over whatever is in there. It can't tell a client matter from a supplier invoice, and the people who wrote to you didn't agree to any of it. Everything it reads stays inside your own account and your own workspace, nothing is stored anywhere else, and the only thing it ever sends goes to your own address. But if you're a lawyer, a therapist, a clinician or an accountant, whether that's an acceptable place for that material to pass through is your call, and it's worth making before the first overnight run rather than after.
+
 Every connection is granted separately and revocably, and everything it knows is a file you can read, edit or delete.
 
 ---
@@ -118,6 +120,19 @@ Three of these are the whole interface — "good morning", "where do things stan
 | "make these corrections" | tell it what's wrong; it rewrites what it knows and the schedules follow |
 
 Everything else is normal conversation.
+
+---
+
+## Turning it off
+
+The schedules live in your Claude account, not inside the plugin, so removing the plugin doesn't stop them. They keep firing on their own and go looking for skills that aren't there any more. Turn it off in this order:
+
+1. **Ask it what's running.** Say *"what's scheduled"* and it lists every task and reminder it created, by name.
+2. **Delete those tasks** in your Claude settings, wherever your scheduled tasks are listed. There will be two or three from setup — the brief, the Sunday review, and the primer if you took it — plus anything you added later.
+3. **Turn the plugin off or remove it** — Customize → Plugins.
+4. **Revoke the connections** you granted, if nothing else is using them. Each one comes off separately.
+
+Your Project stays where it is either way. It's plain files, so keep it, edit it, or delete it.
 
 ---
 

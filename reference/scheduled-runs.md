@@ -70,7 +70,7 @@ Write it as a complete instruction to a capable colleague who has never met this
 >
 > **State file:** `Business Context.md` in that Project. **Where this prompt and that file disagree, the file is right and this prompt is out of date** — including about the recipient address and about what the business is.
 >
-> **Send to:** dana@whitfieldstudio.example, and nowhere else. One recipient, no CC, no BCC.
+> **Send to:** [their address], and nowhere else. One recipient, no CC, no BCC.
 >
 > **What to read:** the connected sources are listed in `Business Context.md` under **What's Connected**. **Check every source listed there, whatever it is.** That list is authoritative and it may have grown since this task was written — do not limit yourself to mail and calendar because this prompt happens to mention them.
 >

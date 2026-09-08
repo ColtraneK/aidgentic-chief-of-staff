@@ -218,7 +218,9 @@ Then **check the schedule can reach the workspace**, using the reachability tabl
 
 **Write each prompt as a complete standalone instruction**, per `scheduled-runs.md`. Each run is a fresh session that remembers nothing about today, so "run the morning brief" is not enough — the prompt names the workspace, names the state file by path, says the state file wins where they disagree, names the recipient, gives per-source failure behavior, names the timezone, and forbids clarifying questions. The Sunday prompt adds the clause in *The Sunday review*: whole-picture scope, write `Standing Map.md`, send the review email, never touch an artifact, never create a task.
 
-**Say both are running, naming the schedule**, because this is the change they have no way to verify: *"Both are set — the brief every weekday at 7, the review on Sundays at 5, and both to dana@whitfieldstudio.example."*
+**Say both are running, naming the schedule**, because this is the change they have no way to verify: *"Both are set — the brief every weekday at 7, the review on Sundays at 5, and both to [their address]."*
+
+**Then name the overnight pass, in one line**, because it happens without them and it is the largest single thing this system does unattended: *"One more thing that runs on its own. Before the first brief, it does a cursory read back through your mail and calendar — up to about two years — to work out how you actually operate. Fifteen minutes of setup can't reach any of that, so it happens overnight while you're not waiting."* Say it and move on. It is not a question and there is nothing to decide.
 
 ### Then offer the third one, once
 

@@ -41,6 +41,8 @@ Not: deals, accounts, leads
 **Extra rule — dated:** anything with a **statutory, filing or court deadline** goes to Band A.
 **Extra rule — chronic:** **unbilled or uncollected work** is never dropped from the map. It's invisible in an inbox and it's where the money actually leaks — but it ranks normally, and it does not outrank a filing deadline.
 
+**Confidentiality:** this profile covers professions that hold privileged or clinical material. The deep read passes over whatever is in the mailbox and cannot distinguish it. If they raise it, don't reassure and don't argue — say plainly what happens (it reads their mail, it stays in their account and workspace, the only thing that leaves goes to their own address), say it's their call to make, and let them make it. Never talk someone past this.
+
 **Watch for:** referral sources who haven't heard from them in months; intake inquiries that never got a reply; matters that have gone quiet but were never formally closed.
 
 ---
